@@ -111,13 +111,15 @@ def dfa_fit_blockwise(
 ```{python}
 x = np.linspace(0, 10, num=1000)
 cum_sig = sig.cumsum()
-ns = np.arange(31, 201, 10)
+ns = np.arange(31, 101, 10)
 deg = 1
 flucs = np.empty(ns.shape)
 for i, n in enumerate(ns):
     fluc, fx, ffit, bx, bfit = dfa_fit_blockwise(x, cum_sig, n, deg)
     flucs[i] = fluc
 
+fit_n = np.polyfit(np.log(ns), np.log(flucs), deg=1)
+print(fit_n)
 
 fig = plt.figure()
 ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -125,13 +127,25 @@ ax.loglog(ns, flucs)
 ax.set_xlabel("n")
 ax.set_title("dfa")
 
-# fig = plt.figure()
-# ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-# ax.plot(x, cum_sig)
-# ax.plot(fx, ffit, "r")
-# ax.plot(bx, bfit, "g")
-# ax.set_xlabel("x")
-# ax.set_title("fit")
+fig = plt.figure()
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+ax.plot(x, cum_sig)
+ax.plot(fx, ffit, "r")
+ax.plot(bx, bfit, "g")
+ax.set_xlabel("x")
+ax.set_title("fit")
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
 ```
 
 ```{python}
