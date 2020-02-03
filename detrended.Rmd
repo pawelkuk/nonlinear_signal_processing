@@ -1,0 +1,195 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.3.2
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+```{python}
+# %load_ext lab_black
+```
+
+```{python}
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+import pandas as pd
+import scipy as sp
+from typing import Tuple
+```
+
+```{python}
+import matplotlib.pyplot as plt
+
+plt.rcParams["figure.figsize"] = [10, 5]
+```
+
+```{python}
+x = np.linspace(0, 10, num=1000)
+sin = 3 * np.sin(2 * x)
+noise = np.random.normal(loc=0, scale=1.0, size=1000)
+sin_noise = sin + noise
+triagle = np.remainder(x, 3)
+rect = np.remainder(x, 2) // 1
+```
+
+```{python}
+sig = sin_noise
+deg = 10
+poly = np.poly1d(np.polyfit(x, sig, deg=deg))
+
+fig = plt.figure()
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+ax.plot(x, sig)
+ax.plot(x, poly(x), "r")
+ax.set_xlabel("x")
+ax.set_title("fit")
+```
+
+```{python jupyter={'source_hidden': True}}
+
+```
+
+```{python}
+def dfa_fit_blockwise(
+    x: np.ndarray, cum_sig: np.ndarray, n: int, deg: int
+) -> Tuple[np.ndarray]:
+    """Returns the fluctuation along side the fit needed for the DFA algorithm."""
+    n_of_blocks = len(cum_sig) // n
+
+    pol_coefs = np.zeros((2 * n_of_blocks, deg + 1))
+    for i in range(n_of_blocks):
+        pol_coefs[i, :] = np.polyfit(
+            x[n * i : n * (i + 1)], cum_sig[n * i : n * (i + 1)], deg=deg
+        )
+        pol_coefs[-i - 1, :] = np.polyfit(
+            x[-n * (i + 1) - 1 : -n * i - 1],
+            cum_sig[-n * (i + 1) - 1 : -n * i - 1],
+            deg=deg,
+        )
+    pol_funcs = []
+    for i in range(pol_coefs.shape[0]):
+        pol_funcs.append(np.poly1d(pol_coefs[i]))
+    ffit = np.zeros(x.shape)
+    bfit = np.zeros(x.shape)
+    offset = len(cum_sig) - n * n_of_blocks
+    for i in range(n_of_blocks):
+        ffit[n * i : n * (i + 1)] = pol_funcs[i](x[n * i : n * (i + 1)])
+        bfit[offset + n * i : offset + n * (i + 1)] = pol_funcs[n_of_blocks + i](
+            x[offset + n * i : offset + n * (i + 1)]
+        )
+
+    fluctuations = 0
+    for i in range(n_of_blocks):
+        fluctuations += np.sum(
+            np.power(ffit[n * i : n * (i + 1)] - cum_sig[n * i : n * (i + 1)], 2)
+        )
+        fluctuations += np.sum(
+            np.power(
+                bfit[offset + n * i : offset + n * (i + 1)]
+                - cum_sig[offset + n * i : offset + n * (i + 1)],
+                2,
+            )
+        )
+    fluctuations = np.sqrt(fluctuations / (len(ffit) + len(bfit)))
+    return (
+        fluctuations,
+        x[: n * n_of_blocks],
+        ffit[: n * n_of_blocks],
+        x[-n * n_of_blocks :],
+        bfit[-n * n_of_blocks :],
+    )
+```
+
+```{python}
+x = np.linspace(0, 10, num=1000)
+cum_sig = sig.cumsum()
+ns = np.arange(31, 201, 10)
+deg = 1
+flucs = np.empty(ns.shape)
+for i, n in enumerate(ns):
+    fluc, fx, ffit, bx, bfit = dfa_fit_blockwise(x, cum_sig, n, deg)
+    flucs[i] = fluc
+
+
+fig = plt.figure()
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+ax.loglog(ns, flucs)
+ax.set_xlabel("n")
+ax.set_title("dfa")
+
+# fig = plt.figure()
+# ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+# ax.plot(x, cum_sig)
+# ax.plot(fx, ffit, "r")
+# ax.plot(bx, bfit, "g")
+# ax.set_xlabel("x")
+# ax.set_title("fit")
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
+
+```{python}
+
+```
